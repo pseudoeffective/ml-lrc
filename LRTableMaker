@@ -1,0 +1,144 @@
+# Maple file for making tables of LR coefficients
+# David Anderson 2023.6.26
+#
+#
+
+# install and build Anders Buch's Littlewood-Richardson calculator
+# then call it:
+read "/usr/local/share/lrcalc/lrcalc.maple":
+
+
+partition_list := proc( m, n, sz::integer:=-1 )
+  # list all partitions of length m and longest part n
+  # assume both m and n positive integers
+  # if optional sz parameter is present, list only partitions of that (nonnegative) size
+
+  local i, j, newla, las1, las;
+
+  las := [];
+
+  if m=1 then
+
+    if sz<0 then
+
+      for i from 0 to n do
+
+        las := [op(las), [i]];
+
+      od;
+
+    elif sz<=n then
+
+      las := [sz];
+
+    fi;
+
+    RETURN(las);
+  fi;
+
+  las1 := partition_list( m-1, n );
+
+  for i from 1 to nops(las1) do
+
+    for j from 0 to op(-1,op(i,las1)) do
+
+      newla := [op(op(i,las1)),j];
+
+      if sz<0 or add(op(newla))=sz then
+
+        las := [ op(las), newla ];
+
+      fi;
+
+    od;
+  od;
+
+  RETURN(las);
+
+end:
+
+
+part_contains:= proc(mmu, lla)
+# is mmu contained in lla
+
+  local i, n;
+
+  n := nops(mmu);
+
+  if n > nops(lla) and op(n,mmu)>0 then return(false) fi;
+
+  for i from 1 to n do
+
+    if op(i,mmu)>op(i,lla) then return(false) fi;
+
+  od;
+
+  return(true);
+
+end:
+
+
+generate_LR_table := proc( m,n, fn, tr::integer:=1000, fmt::symbol:=`` )
+  # write all LR coeffs for partitions of length at most m and largest part at most n to file fn
+  # format is lines la, mu, nu, LR(la,mu,nu)
+  # truncate values at optional variable tr (if LR coeff is >= tr, return tr)
+  # if optional variable fmt is specified as CC, then concatenate la, mu, nu into a 3m-vector.
+
+  local i,j,k, sz, sz2, la, mu, nu, las, mus, nus, lrc, fd, vec;
+
+  for sz from 0 to m*n do
+
+    las := partition_list( m,n, sz );
+
+    for sz2 from 0 to m*n-sz do
+
+      mus := partition_list( m,n, sz2 );
+
+      nus := partition_list( m,n, sz+sz2 );
+
+      for i from 1 to nops( las ) do
+
+        for j from 1 to nops( mus ) do
+
+          for k from 1 to nops( nus ) do
+
+            la := op(i,las);
+            mu := op(j,mus);
+            nu := op(k,nus);
+
+            if part_contains(la, nu) and part_contains(mu, nu) then
+
+              lrc := lrcoef( nu, la, mu );
+#              lrc := Gr_eqlr( la, mu, nu, m );
+
+              if lrc > tr then lrc := tr fi;      # truncate
+
+              fd := fopen( fn, APPEND );
+
+              if fmt=CC then                      # concatenate
+
+                vec := [op(la),op(mu),op(nu)];
+
+                fprintf( fd, "%a, %a\n",  lrc, vec );
+
+              else                                # dont concatenate/human-readable
+
+                fprintf( fd, "%a, %a, %a, %a\n", lrc, la, mu, nu );
+
+              fi;
+
+              fclose( fd );
+
+            fi;
+
+          od;
+
+        od;
+
+      od;
+
+    od;
+
+  od;
+
+end:
