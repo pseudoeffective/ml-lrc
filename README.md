@@ -14,7 +14,7 @@ Horn5.train.conf and Horn5.predict.conf are the LightGBM config files.  The full
 
 Horn5OnesOD.csv and Horn5ZeroesOD.csv together contain the 67,594 points not used in training or testing, separated into c=1 (21,973) and c=0 (45,621).  The confusion matrix for running the model on these points is as follows:
 
-$$\begin{array}{c|c|c|} \text{actual}\backslash\text{predicted} & 0 & 1  \newline 0 & 43699 & 1922  \newline 1 & 89 & 21884  \end{array}$$
+$$\begin{array}{c|c|c|} \text{actual}\backslash\text{predicted} & 0 & 1  \newline \hline 0 & 43699 & 1922  \newline \hline 1 & 89 & 21884  \end{array}$$
 
 So it correctly predicted c=0 with 95.79% accuracy, and correctly predicted c=1 with 99.59% accuracy.
 
@@ -32,10 +32,16 @@ Next steps:
 
 Update: I trained another LightGBM model on the LR numbers for partitions in a 6-by-6 box.  The training data this time consisted of 1M data points, balanced as before between 500k randomly sampled 1's and 500k randomly sampled 0's.  The confusion matrix for the remaining 3,812,641 points is as follows:
 
-$$\begin{array}{c|c|c|} \text{actual}\backslash\text{predicted} & 0 & 1  \newline 0 & 2,257,325 & 227,603  \newline 1 & 12,246 & 1,315,467  \end{array}$$
+$$\begin{array}{c|c|c|} \text{actual}\backslash\text{predicted} & 0 & 1  \newline \hline 0 & 2,257,325 & 227,603  \newline \hline 1 & 12,247 & 1,315,467  \end{array}$$
 
 So it predicts c=0 with 90.84% accuracy, and c=1 with 99.08% accuracy.
 
 The accuracy declined somewhat from n=5, which is disappointing.  Some notes: I used the same number of iterations (5000), which took about 230s this time.  Possibly increasing the number of iterations would help.  Less optimistically, the percentage of training data used was smaller, just over 1/5 of the total for n=6 rather than about 1/2 as for n=5; presumably increasing the relative size of the training could help.
 
-I will post the training files if they are not too large; the filenames are analogous to the n=5 case.
+### 2023.9.7
+
+Using 25000 iterations increased accuracy significantly for the 6-by-6 case.  Same data as before, the confusion matrix is now
+
+$$\begin{array}{c|c|c|} \text{actual}\backslash\text{predicted} & 0 & 1  \newline \hline 0 & 2,423,479 & 61,449  \newline \hline 1 & 2,008 & 1,325,706  \end{array}$$
+
+So it predicts c=0 with 97.53% accuracy, and c=1 with 99.85% accuracy.
