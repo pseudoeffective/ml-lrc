@@ -38,10 +38,18 @@ So it predicts c=0 with 90.84% accuracy, and c=1 with 99.08% accuracy.
 
 The accuracy declined somewhat from n=5, which is disappointing.  Some notes: I used the same number of iterations (5000), which took about 230s this time.  Possibly increasing the number of iterations would help.  Less optimistically, the percentage of training data used was smaller, just over 1/5 of the total for n=6 rather than about 1/2 as for n=5; presumably increasing the relative size of the training could help.
 
-### 2023.9.7
+### 2023.9.8
 
-Using 25000 iterations increased accuracy significantly for the 6-by-6 case.  Same data as before, the confusion matrix is now
+Using 25,000 iterations increased accuracy significantly for the 6-by-6 case.  Same data as before, the confusion matrix is now
 
 $$\begin{array}{c|c|c|} \text{actual}\backslash\text{predicted} & 0 & 1  \newline \hline 0 & 2,423,479 & 61,449  \newline \hline 1 & 2,008 & 1,325,706  \end{array}$$
 
 So it predicts c=0 with 97.53% accuracy, and c=1 with 99.85% accuracy.
+
+Going up to 50,000 iterations further increased accuracy for predicting c=0.  The confusion matrix is now
+
+$$\begin{array}{c|c|c|} \text{actual}\backslash\text{predicted} & 0 & 1  \newline \hline 0 & 2,450,142 & 34,786  \newline \hline 1 & 2,489 & 1,325,225  \end{array}$$
+
+So it predicts c=0 with 98.60% accuracy, and c=1 with 99.81% accuracy, the latter a slight dip from the 25K model.  This seems like a good place to stop increasing iterations and pursue other avenues.
+
+
